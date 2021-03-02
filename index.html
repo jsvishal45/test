@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+
+</head>
+<body>
+    <h1> Hi <span id ="message"></span>!</h1>
+</body>
+<script>
+    function waitForH5(time = 5000) {
+        return new Promise((resolve, reject) => {
+            let id;
+            const cb = () => {
+               
+                resolve();
+                document.removeEventListener('AlipayJSBridgeReady', cb);
+                id && clearTimeout(id);
+            };
+            if (window.AlipayJSBridge) {
+                resolve();
+            }
+            if (typeof window.AlipayJSBridge === 'undefined') {
+                 document.addEventListener('AlipayJSBridgeReady', cb);
+            }
+            id = setTimeout(() => {
+            if (typeof window.AlipayJSBridge === 'undefined') {
+                document.removeEventListener('AlipayJSBridgeReady', cb);
+                id = null;
+                reject('time-out');
+            }
+            }, time);
+        });
+}
+
+async function getName() {
+        await waitForH5()
+        window.AlipayJSBridge.call(
+            'paytmFetchValuesForKeys',
+            {
+                keys: [
+                
+                'firstName'
+                
+                ], // keys array
+            },
+            result => {
+                const name = result?.data?.firstName || "";
+                document.getElementById("message").innerHTML = name
+                
+            }
+    );
+}
+
+getName()
+</script>
+</html>
